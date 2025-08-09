@@ -1,19 +1,10 @@
 // app/dashboard.js
 import { useRouter } from 'expo-router';
 import { signOut } from 'firebase/auth';
-import {
-  collection,
-  deleteDoc,
-  doc,
-  onSnapshot,
-  query,
-  updateDoc,
-  where,
-} from 'firebase/firestore';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, FlatList, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { collection, deleteDoc, doc, onSnapshot, updateDoc } from 'firebase/firestore';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { auth, db } from '../firebaseConfig';
-
 
 const confirm = (title, message) =>
   new Promise((resolve) => {
@@ -22,7 +13,6 @@ const confirm = (title, message) =>
       { text: 'Delete', style: 'destructive', onPress: () => resolve(true) },
     ]);
   });
-
 
 const PButton = ({ title, onPress, destructive }) => (
   <Pressable
@@ -36,7 +26,6 @@ const PButton = ({ title, onPress, destructive }) => (
     <Text style={[styles.btnText, destructive && styles.btnTextOnDanger]}>{title}</Text>
   </Pressable>
 );
-
 
 const EventCard = React.memo(function EventCard({
   item,
@@ -67,32 +56,22 @@ const EventCard = React.memo(function EventCard({
   );
 });
 
-
 export default function DashboardScreen() {
   const router = useRouter();
   const [events, setEvents] = useState([]);
-  const [onlyMine, setOnlyMine] = useState(false);
 
-  const userId = auth.currentUser?.uid || null;
-
-
-  const qRef = useMemo(() => {
-    const col = collection(db, 'events');
-    return onlyMine && userId ? query(col, where('createdBy', '==', userId)) : col;
-  }, [onlyMine, userId]);
-
-  // Live updates
+  // Live updates for all events
   useEffect(() => {
     const unsub = onSnapshot(
-      qRef,
+      collection(db, 'events'),
       (snap) => setEvents(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
       (err) => console.error(err)
     );
     return () => unsub();
-  }, [qRef]);
+  }, []);
 
   const logout = useCallback(() => {
-    signOut(auth).then(() => router.replace('/login'));
+    signOut(auth).then(() => router.replace('/signin'));
   }, [router]);
 
   const deleteEvent = useCallback(async (id) => {
@@ -102,13 +81,13 @@ export default function DashboardScreen() {
   }, []);
 
   const toggleFavorite = useCallback(async (evt) => {
-    // optimistic UI: update local list immediately
+    // optimistic UI
     setEvents((prev) =>
       prev.map((e) => (e.id === evt.id ? { ...e, isFavorite: !e.isFavorite } : e))
     );
     try {
       await updateDoc(doc(db, 'events', evt.id), { isFavorite: !evt.isFavorite });
-    } catch (e) {
+    } catch {
       // revert on error
       setEvents((prev) =>
         prev.map((e) => (e.id === evt.id ? { ...e, isFavorite: evt.isFavorite } : e))
@@ -136,18 +115,13 @@ export default function DashboardScreen() {
       onToggleFav={toggleFavorite}
       onEdit={goEdit}
       onDelete={deleteEvent}
-      mine={item.createdBy === userId}
+      mine={true} // <-- always show Edit/Delete
     />
   );
 
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Event Dashboard</Text>
-
-      <View style={styles.filterRow}>
-        <Text style={styles.filterLabel}>Show only my events</Text>
-        <Switch value={onlyMine} onValueChange={setOnlyMine} />
-      </View>
 
       <FlatList
         data={events}
@@ -156,7 +130,7 @@ export default function DashboardScreen() {
         contentContainerStyle={{ paddingBottom: 16 }}
         ListEmptyComponent={
           <Text style={{ textAlign: 'center', color: '#666', marginTop: 30 }}>
-            {onlyMine ? 'No events created by you yet.' : 'No events yet. Create one!'}
+            No events yet. Create one!
           </Text>
         }
       />
@@ -170,18 +144,9 @@ export default function DashboardScreen() {
   );
 }
 
-
-
 const styles = StyleSheet.create({
   container: { padding: 20, flex: 1 },
   heading: { fontSize: 22, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' },
-  filterRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  filterLabel: { fontWeight: '600' },
   card: {
     padding: 14,
     backgroundColor: '#F7F7F8',

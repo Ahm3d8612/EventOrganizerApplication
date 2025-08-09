@@ -1,4 +1,4 @@
-// app/login.js
+// app/signin.js
 import { useRouter } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useCallback, useState } from 'react';
@@ -28,7 +28,7 @@ const PButton = ({ title, onPress, disabled }) => (
   </Pressable>
 );
 
-export default function LoginView() {
+export default function SignInView() {
   const router = useRouter();
   const [form, setForm] = useState({ email: '', password: '' });
   const [secure, setSecure] = useState(true);
@@ -51,7 +51,6 @@ export default function LoginView() {
       Alert.alert('Invalid Input', err);
       return;
     }
-
     try {
       setBusy(true);
       await signInWithEmailAndPassword(auth, form.email.trim(), form.password.trim());
@@ -66,7 +65,7 @@ export default function LoginView() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.select({ ios: 'padding', android: undefined })}>
       <View style={styles.container}>
-        <Text style={styles.title}>Login</Text>
+        <Text style={styles.title}>Sign In</Text>
 
         <TextInput
           placeholder="Email"
@@ -92,7 +91,7 @@ export default function LoginView() {
           </Pressable>
         </View>
 
-        <PButton title={busy ? 'Logging in…' : 'Login'} onPress={onLogin} disabled={busy} />
+        <PButton title={busy ? 'Signing in…' : 'Sign In'} onPress={onLogin} disabled={busy} />
 
         <Text style={styles.link} onPress={() => router.replace('/signup')}>
           Don't have an account? Sign up
@@ -106,31 +105,16 @@ const styles = StyleSheet.create({
   container: { padding: 20, flex: 1, justifyContent: 'center' },
   title: { fontSize: 24, marginBottom: 20, textAlign: 'center', fontWeight: '600' },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#fff',
-    padding: 12,
-    marginBottom: 10,
-    borderRadius: 8,
+    borderWidth: 1, borderColor: '#ccc', backgroundColor: '#fff',
+    padding: 12, marginBottom: 10, borderRadius: 8,
   },
   row: { flexDirection: 'row', alignItems: 'center' },
   toggle: {
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginLeft: 8,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    backgroundColor: '#fff',
+    paddingHorizontal: 12, paddingVertical: 10, marginLeft: 8,
+    borderWidth: 1, borderColor: '#ccc', borderRadius: 8, backgroundColor: '#fff',
   },
   link: { marginTop: 15, color: 'blue', textAlign: 'center' },
-  btn: {
-    paddingVertical: 12,
-    borderRadius: 10,
-    backgroundColor: '#000000',
-    alignItems: 'center',
-    marginTop: 6,
-  },
+  btn: { paddingVertical: 12, borderRadius: 10, backgroundColor: '#000', alignItems: 'center', marginTop: 6 },
   btnDisabled: { backgroundColor: '#9FB9F5' },
   btnText: { color: '#fff', fontWeight: '700' },
 });

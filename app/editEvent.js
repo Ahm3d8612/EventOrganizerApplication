@@ -1,4 +1,3 @@
-// app/editEvent.js
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -6,15 +5,9 @@ import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleShee
 import { db } from '../firebaseConfig';
 
 const PButton = ({ title, onPress, disabled }) => (
-  <Pressable
-    onPress={onPress}
-    disabled={disabled}
-    style={({ pressed }) => [
-      styles.btn,
-      disabled && styles.btnDisabled,
-      pressed && !disabled && { opacity: 0.7 },
-    ]}
-  >
+  <Pressable onPress={onPress} disabled={disabled} style={({ pressed }) => [
+    styles.btn, disabled && styles.btnDisabled, pressed && !disabled && { opacity: 0.7 },
+  ]}>
     <Text style={styles.btnText}>{title}</Text>
   </Pressable>
 );
@@ -25,9 +18,8 @@ export default function EditEventView() {
 
   const [form, setForm] = useState({ title: String(pTitle || ''), description: String(pDesc || ''), date: String(pDate || '') });
   const [loading, setLoading] = useState(false);
-  const [hydrated, setHydrated] = useState(Boolean(pTitle || pDesc || pDate)); // whether we already have initial data
+  const [hydrated, setHydrated] = useState(Boolean(pTitle || pDesc || pDate));
 
-  // Fallback: if this screen was opened only with id (no params), fetch the doc once
   useEffect(() => {
     const fetchIfNeeded = async () => {
       if (!id || hydrated) return;
@@ -42,7 +34,7 @@ export default function EditEventView() {
           });
           setHydrated(true);
         }
-      } catch (e) {
+      } catch {
         Alert.alert('Error', 'Could not load event details.');
       }
     };
@@ -88,26 +80,9 @@ export default function EditEventView() {
       <ScrollView contentContainerStyle={styles.wrap} keyboardShouldPersistTaps="handled">
         <Text style={styles.heading}>Edit Event</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Title"
-          value={form.title}
-          onChangeText={update('title')}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Description"
-          value={form.description}
-          onChangeText={update('description')}
-          multiline
-        />
-        <TextInput
-          style={styles.input}
-          placeholder='Date (e.g. "Aug 8, 2025" or "12-12-2026")'
-          value={form.date}
-          onChangeText={update('date')}
-          autoCapitalize="none"
-        />
+        <TextInput style={styles.input} placeholder="Title" value={form.title} onChangeText={update('title')} />
+        <TextInput style={styles.input} placeholder="Description" value={form.description} onChangeText={update('description')} multiline />
+        <TextInput style={styles.input} placeholder='Date (e.g. "Aug 8, 2025" or "12-12-2026")' value={form.date} onChangeText={update('date')} autoCapitalize="none" />
 
         <PButton title={loading ? 'Updating…' : 'Update Event'} onPress={onSave} disabled={loading} />
       </ScrollView>

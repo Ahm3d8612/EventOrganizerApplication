@@ -3,14 +3,8 @@ import { useRouter } from 'expo-router';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import React, { useCallback, useState } from 'react';
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+  Alert, KeyboardAvoidingView, Platform, Pressable,
+  StyleSheet, Text, TextInput, View,
 } from 'react-native';
 import { auth } from '../firebaseConfig';
 
@@ -56,7 +50,7 @@ export default function SignUpView() {
       setBusy(true);
       await createUserWithEmailAndPassword(auth, form.email.trim(), form.password.trim());
       Alert.alert('Success', 'Account created!');
-      router.replace('/login');
+      router.replace('/signin'); // updated to /signin
     } catch (e) {
       Alert.alert('Signup Failed', e?.message ?? 'Something went wrong.');
     } finally {
@@ -96,7 +90,7 @@ export default function SignUpView() {
         <PButton title={busy ? 'Registering…' : 'Register'} onPress={onSignUp} disabled={busy} />
 
         <Text style={styles.link} onPress={() => router.replace('/signin')}>
-          Already have an account? Log in
+          Already have an account? Sign in
         </Text>
       </View>
     </KeyboardAvoidingView>
@@ -107,31 +101,16 @@ const styles = StyleSheet.create({
   container: { padding: 20, flex: 1, justifyContent: 'center' },
   title: { fontSize: 24, marginBottom: 20, textAlign: 'center', fontWeight: '600' },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#fff',
-    padding: 12,
-    marginBottom: 10,
-    borderRadius: 8,
+    borderWidth: 1, borderColor: '#ccc', backgroundColor: '#fff',
+    padding: 12, marginBottom: 10, borderRadius: 8,
   },
   row: { flexDirection: 'row', alignItems: 'center' },
   toggle: {
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginLeft: 8,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    backgroundColor: '#fff',
+    paddingHorizontal: 12, paddingVertical: 10, marginLeft: 8,
+    borderWidth: 1, borderColor: '#ccc', borderRadius: 8, backgroundColor: '#fff',
   },
   link: { marginTop: 15, color: 'blue', textAlign: 'center' },
-  btn: {
-    paddingVertical: 12,
-    borderRadius: 10,
-    backgroundColor: '#000000',
-    alignItems: 'center',
-    marginTop: 6,
-  },
+  btn: { paddingVertical: 12, borderRadius: 10, backgroundColor: '#000', alignItems: 'center', marginTop: 6 },
   btnDisabled: { backgroundColor: '#9FB9F5' },
   btnText: { color: '#fff', fontWeight: '700' },
 });

@@ -13,7 +13,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { db } from '../firebaseConfig';
 
-/* util: confirm as a promise */
 const confirm = (title, message) =>
   new Promise((resolve) => {
     Alert.alert(title, message, [
@@ -22,7 +21,6 @@ const confirm = (title, message) =>
     ]);
   });
 
-/* tiny button */
 const PButton = ({ title, onPress, destructive }) => (
   <Pressable
     onPress={onPress}
@@ -36,7 +34,6 @@ const PButton = ({ title, onPress, destructive }) => (
   </Pressable>
 );
 
-/* list item */
 const FavCard = React.memo(function FavCard({ item, onRemove }) {
   return (
     <View style={styles.card}>
@@ -55,13 +52,11 @@ export default function FavoritesScreen() {
   const [favorites, setFavorites] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
-  // query only favorite events
   const qRef = useMemo(() => {
     const col = collection(db, 'events');
     return query(col, where('isFavorite', '==', true));
   }, []);
 
-  // realtime updates
   useEffect(() => {
     const unsub = onSnapshot(
       qRef,
@@ -71,7 +66,6 @@ export default function FavoritesScreen() {
     return () => unsub();
   }, [qRef]);
 
-  // manual refresh (pull-to-refresh)
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
@@ -82,17 +76,14 @@ export default function FavoritesScreen() {
     }
   }, [qRef]);
 
-  // remove favorite with confirmation (optimistic UI)
   const removeFavorite = useCallback(async (event) => {
     const ok = await confirm('Remove Favorite', 'Are you sure you want to remove this from favorites?');
     if (!ok) return;
 
-    // optimistic update
     setFavorites((prev) => prev.filter((e) => e.id !== event.id));
     try {
       await updateDoc(doc(db, 'events', event.id), { isFavorite: false });
-    } catch (e) {
-      // revert on failure (rare)
+    } catch {
       setFavorites((prev) => [...prev, event]);
     }
   }, []);
@@ -138,14 +129,9 @@ const styles = StyleSheet.create({
   date: { fontStyle: 'italic', marginTop: 6, color: '#444' },
   footer: { marginTop: 8, alignItems: 'center' },
   btn: {
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#cfcfcf',
-    backgroundColor: '#fff',
-    minWidth: 160,
-    alignItems: 'center',
+    paddingHorizontal: 12, paddingVertical: 10, borderRadius: 8,
+    borderWidth: 1, borderColor: '#cfcfcf', backgroundColor: '#fff',
+    minWidth: 160, alignItems: 'center',
   },
   btnDanger: { backgroundColor: '#ffefef', borderColor: '#ffbcbc' },
   btnText: { fontWeight: '600' },
